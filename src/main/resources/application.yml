@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: naming-server
+
+server:
+  port: 8761
+
+eureka:
+  client:
+    # para não procurar se auto registrar já que estamos rodando local
+    register-with-eureka: false
+    fetch-registry: false
