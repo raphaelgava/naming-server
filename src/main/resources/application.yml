@@ -3,7 +3,7 @@ spring:
     name: naming-server
 
 server:
-  port: 8761
+  port: 8761 #8671 é a porta padrão, foi usado outra apenas pra teste
 
 eureka:
   client:
