@@ -99,6 +99,8 @@ jobs:
               ls -l      
               echo "Listando arquivos no diretório components:"
               ls -l ./components/ms_cambio-service
+              ls -l ./components/ms_cambio-service/target
+              echo "Finding directory"
               echo "Finding directory"
               find ./ -type d -name "target" -print
               docker compose build
