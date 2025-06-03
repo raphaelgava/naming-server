@@ -68,26 +68,22 @@ jobs:
             pwd
             echo "Listando arquivos no diretório atual:"
             ls -l      
-            echo "Listando arquivos no diretório anterior:"
-            ls -l ../
-            echo "Listando arquivos no diretório ../..:" 
-            ls -l ../..
-            echo "Listando arquivos no diretório ../../..:" 
-            ls -l ../../..
+            echo "Listando arquivos no diretório components:"
+            ls -l /components
+            echo "Listando arquivos no diretório compotnents/api-gateway:" 
+            ls -l /components/api-gateway
             echo "finding"
-            find ../../.. -type d -name "components" -print
+            find ./ -type d -name "components" -print
 
-
-
-        # - name: API Gateway
-        #   working-directory: components/api-gateway
-        #   run: |
-        #     if [ -f components/api-gateway/pom.xml ]; then
-        #       echo "Arquivo pom.xml encontrado. Executando Maven..."
-        #       mvn spring-boot:build-image -DskipTests -X -e -f components/api-gateway/pom.xml
-        #     else
-        #       echo "Arquivo pom.xml não encontrado. Pulando etapa."
-        #     fi
+        - name: API Gateway
+          working-directory: /components/api-gateway
+          run: |
+            if [ -f components/api-gateway/pom.xml ]; then
+              echo "Arquivo pom.xml encontrado. Executando Maven..."
+              # mvn spring-boot:build-image -DskipTests -X -e -f components/api-gateway/pom.xml
+            else
+              echo "Arquivo pom.xml não encontrado. Pulando etapa."
+            fi
 
             
 
