@@ -67,8 +67,10 @@ jobs:
             ls -l      
             echo "Listando arquivos no diretório anterior:"
             ls -l ../
-            echo "Listando arquivos no diretório ../components/api-gateway:" 
+            echo "Listando arquivos no diretório ../..:" 
             ls -l ../..
+            echo "Listando arquivos no diretório ../../..:" 
+            ls -l ../../..
 
 
         - name: API Gateway
