@@ -7,7 +7,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
+        - name: Checkout main repository and submodules
           uses: actions/checkout@v4
           with:
               submodules: true # Isso garante que os submódulos sejam automaticamente clonados
@@ -25,7 +25,7 @@ jobs:
             java-version: '21'
             distribution: 'oracle'
 
-        - name: Criar arquivo settings.xml # Evidar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
+        - name: Criar arquivo settings.xml # Evitar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
           run: |
             mkdir -p ~/.m2
             cat <<EOF > ~/.m2/settings.xml
@@ -44,7 +44,7 @@ jobs:
           working-directory: ./
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
 
-        - name: Verificar arquivos dentro do diretório esperado
+        - name: Verificar estrutura de pastas
           run: |
             echo "Diretório atual:"
             pwd
@@ -52,19 +52,50 @@ jobs:
             ls -l      
             echo "Listando arquivos no diretório components:"
             ls -l ./components
-            echo "Listando arquivos no diretório compotnents/api-gateway:" 
-            ls -l ./components/api-gateway
-            echo "finding"
+            echo "Finding directory"
             find ./ -type d -name "components" -print
 
         - name: API Gateway
           working-directory: ./components/api-gateway
           run: |
             if [ -f "./pom.xml" ]; then
-              echo "Arquivo pom.xml encontrado. Executando Maven..."
+              echo "Arquivo pom.xml do api-service encontrado. Executando Maven..."
               mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
             else
               echo "Arquivo pom.xml do api-gateway não encontrado. Parando build."
+              exit 1
+            fi
+
+        - name: MS Cambio
+          working-directory: ./components/ms_cambio-service
+          run: |
+            if [ -f "./pom.xml" ]; then
+              echo "Arquivo pom.xml do ms_cambio-service encontrado. Executando Maven..."
+              mvn clean package -DskipTests -X -e -f pom.xml
+            else
+              echo "Arquivo pom.xml do ms_book-service não encontrado. Parando build."
+              exit 1
+            fi
+
+        - name: MS Book
+          working-directory: ./components/ms_book-service
+          run: |
+            if [ -f "./pom.xml" ]; then
+              echo "Arquivo pom.xml do ms_book-service encontrado. Executando Maven..."
+              mvn clean package -DskipTests -X -e -f pom.xml
+            else
+              echo "Arquivo pom.xml do ms_book-service não encontrado. Parando build."
+              exit 1
+            fi
+
+        - name: Docker Compose Build
+          working-directory: ./
+          run: |
+            if [ -f "./docker-compose.yml" ]; then
+              echo "Arquivo docker-compose.yml encontrado. Executando Docker..."
+              docker compose build
+            else
+              echo "Arquivo docker-compose.yml não encontrado. Parando build."
               exit 1
             fi
 
