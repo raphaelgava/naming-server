@@ -93,6 +93,14 @@ jobs:
           run: |
             if [ -f "./docker-compose.yml" ]; then
               echo "Arquivo docker-compose.yml encontrado. Executando Docker..."
+              echo "Diretório atual:"
+              pwd
+              echo "Listando arquivos no diretório atual:"
+              ls -l      
+              echo "Listando arquivos no diretório components:"
+              ls -l ./components/ms_cambio-service
+              echo "Finding directory"
+              find ./ -type d -name "target" -print
               docker compose build
             else
               echo "Arquivo docker-compose.yml não encontrado. Parando build."
