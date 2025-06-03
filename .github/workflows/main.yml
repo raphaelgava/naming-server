@@ -58,6 +58,10 @@ jobs:
         - name: Eureka Naming Server
           working-directory: ./
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+
+        - name: API Gateway
+          working-directory: ../api-gateway
+          run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
             
 
 # This workflow uses actions that are not certified by GitHub.
