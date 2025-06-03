@@ -1,22 +1,5 @@
 name: Continuous Integration with Github
 
-# on: [push]
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-    
-#     steps:
-#       - uses: actions/checkout@v4
-
-#       - name: Docker Hub Logging
-#         uses: docker/login-action@v3.4.0
-#         with:
-#           # Username used to log against the Docker registry
-#           username: ${{ secrets.DOCKER_USERNAME }}
-#           # Password or personal access token used to log against the Docker registry
-#           # password: 
-
 on:
   push:
 
@@ -24,7 +7,10 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v4
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+              submodules: true # Isso garante que os submódulos sejam automaticamente clonados
       
         - name: Login to Docker Hub
           uses: docker/login-action@v3.4.0
@@ -39,7 +25,7 @@ jobs:
             java-version: '21'
             distribution: 'oracle'
 
-        - name: Criar arquivo settings.xml
+        - name: Criar arquivo settings.xml # Evidar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
           run: |
             mkdir -p ~/.m2
             cat <<EOF > ~/.m2/settings.xml
@@ -54,14 +40,34 @@ jobs:
             </settings>
             EOF
 
-
         - name: Eureka Naming Server
           working-directory: ./
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
 
+        - name: Verificar arquivos dentro do diretório esperado
+          run: |
+            echo "Diretório atual:"
+            pwd
+            echo "Listando arquivos no diretório atual:"
+            ls -l      
+            echo "Listando arquivos no diretório components:"
+            ls -l ./components
+            echo "Listando arquivos no diretório compotnents/api-gateway:" 
+            ls -l ./components/api-gateway
+            echo "finding"
+            find ./ -type d -name "components" -print
+
         - name: API Gateway
-          working-directory: ../api-gateway
-          run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+          working-directory: ./components/api-gateway
+          run: |
+            if [ -f "./pom.xml" ]; then
+              echo "Arquivo pom.xml encontrado. Executando Maven..."
+              mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+            else
+              echo "Arquivo pom.xml do api-gateway não encontrado. Parando build."
+              exit 1
+            fi
+
             
 
 # This workflow uses actions that are not certified by GitHub.
