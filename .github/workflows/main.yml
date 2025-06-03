@@ -61,8 +61,13 @@ jobs:
 
         - name: Verificar arquivos dentro do diretório esperado
           run: |
-            echo "Verificando diretório: components/api-gateway"
+            echo "Diretório atual:"
+            pwd
+            echo "Listando arquivos no diretório atual:"
+            ls -l        
+            echo "Listando arquivos no diretório components/api-gateway:"
             ls -l components/api-gateway
+
 
         - name: API Gateway
           working-directory: components/api-gateway
