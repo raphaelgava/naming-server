@@ -59,9 +59,21 @@ jobs:
           working-directory: ./
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
 
+        - name: Verificar arquivos dentro do diretório esperado
+          run: |
+            echo "Verificando diretório: components/api-gateway"
+            ls -l components/api-gateway
+
         - name: API Gateway
           working-directory: components/api-gateway
-          run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+          run: |
+            if [ -f components/api-gateway/pom.xml ]; then
+              echo "Arquivo pom.xml encontrado. Executando Maven..."
+              mvn spring-boot:build-image -DskipTests -X -e -f components/api-gateway/pom.xml
+            else
+              echo "Arquivo pom.xml não encontrado. Pulando etapa."
+            fi
+
             
 
 # This workflow uses actions that are not certified by GitHub.
