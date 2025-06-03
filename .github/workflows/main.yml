@@ -60,7 +60,7 @@ jobs:
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
 
         - name: API Gateway
-          working-directory: ../api-gateway
+          working-directory: ./components/api-gateway
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
             
 
