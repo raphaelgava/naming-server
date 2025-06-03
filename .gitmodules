@@ -1,0 +1,9 @@
+[submodule "components/api-gateway"]
+	path = components/api-gateway
+	url = https://github.com/raphaelgava/api-gateway
+[submodule "components/ms_cambio-service"]
+	path = components/ms_cambio-service
+	url = https://github.com/raphaelgava/ms_cambio-service
+[submodule "components/ms_book-service"]
+	path = components/ms_book-service
+	url = https://github.com/raphaelgava/ms_book-service
