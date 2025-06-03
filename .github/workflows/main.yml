@@ -42,7 +42,7 @@ jobs:
         #     java-version: '21'
         #     distribution: 'oracle'
 
-        # - name: Criar arquivo settings.xml
+        # - name: Criar arquivo settings.xml # Evidar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
         #   run: |
         #     mkdir -p ~/.m2
         #     cat <<EOF > ~/.m2/settings.xml
@@ -56,7 +56,6 @@ jobs:
         #         </servers>
         #     </settings>
         #     EOF
-
 
         # - name: Eureka Naming Server
         #   working-directory: ./
@@ -78,7 +77,7 @@ jobs:
         - name: API Gateway
           working-directory: /components/api-gateway
           run: |
-            if [ -f ./components/api-gateway/pom.xml ]; then
+            if [ -d ./components/api-gateway ]; then
               echo "Arquivo pom.xml encontrado. Executando Maven..."
               # mvn spring-boot:build-image -DskipTests -X -e -f components/api-gateway/pom.xml
             else
