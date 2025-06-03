@@ -1,0 +1,195 @@
+services:
+    zipkin-server:
+        image: openzipkin/zipkin:latest
+        #container_name: zipkin-server
+        #hostname: zipkin-server
+        restart: always #para evitar o erro do rabbit-mq não encontrar
+        ports:
+            - "9411:9411"
+        depends_on:
+            - rabbit-mq
+        environment:
+            RABBIT_URI: amqp://guest:guest@rabbit-mq:5672
+        networks:
+            - microservice-network
+            
+    rabbit-mq:
+        image: rabbitmq:3-management
+        #container_name: zipkin-server
+        #hostname: zipkin-server
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        volumes:
+            - rabbitmq_data:/data
+        networks:
+            - microservice-network
+            
+    naming-server:
+        image: raphaelgava1/naming-server:0.0.1-SNAPSHOT
+        container_name: naming-server
+        hostname: naming-server
+        ports:
+            - "8761:8761"
+        depends_on:
+            - zipkin-server
+        environment:
+            SPRING_ZIPKIN_BASEURL: http://zipkin-server:9411/
+        networks:
+            - microservice-network
+            
+    api-gateway:
+        image: raphaelgava1/api-gateway:0.0.1-SNAPSHOT
+        container_name: api-gateway
+        hostname: api-gateway
+        ports:
+            - "8765:8765"
+        depends_on:
+            - naming-server
+            - rabbit-mq
+        environment:
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://naming-server:8761/eureka
+            SPRING_ZIPKIN_BASEURL: http://zipkin-server:9411/
+            RABBIT_URI: amqp://guest:guest@rabbit-mq:5672
+            SPRING_RABBITMQ_HOST: rabbit-mq
+            SPRING_ZIPKIN_SENDER_TYPE: rabbit #Mudando o zipking.base
+        networks:
+            - microservice-network
+            
+    cambio-db: # command: docker exec -it ideaprojects-cambio-db-1 mysql -u root -padmin123 -e "SHOW VARIABLES LIKE 'port';"
+        image: mysql:latest  #5.7.22
+        container_name: ideaprojects-cambio-db
+        #command: --default-authentication-plugin=mysql_native_password
+        restart: always #politica de restart do container se der algum problema
+        environment:
+            TZ: America/Sao_Paulo #Para ajustar o horário
+            MYSQL_ROOT_PASSWORD: admin123
+            MYSQL_USER: docker # Não precisa especificar se for usuário root!!!!
+            MYSQL_PASSWORD: admin123
+            MYSQL_DATABASE: cambio_service
+            MYSQL_ROOT_HOST: '%' #Permite diferentes hosts
+            MYSQL_TCP_PORT: 3308
+        ports:
+            - "3308:3308" #host:container
+        expose:
+            - 3308
+        
+        volumes:
+            - mysql_ms_cambio_data:/var/lib/mysql
+            #- mysql_ms_data:/var/lib/mysql
+       
+        # Comando para acessar o mysql do docker
+        # PS C:\Users\Raphael\IdeaProjects\microservices> docker exec -it cambio-db mysql -u root -padmin123
+        # mysql: [Warning] Using a password on the command line interface can be insecure.
+        # Welcome to the MySQL monitor.  Commands end with ; or \g.
+        # Your MySQL connection id is 16
+        # Server version: 9.3.0 MySQL Community Server - GPL
+        networks:
+          - microservice-network
+    
+    book-db:
+        image: mysql:latest  #5.7.22
+        container_name: ideaprojects-book-db
+        #command: --default-authentication-plugin=mysql_native_password
+        restart: always #politica de restart do container se der algum problema
+        environment:
+            TZ: America/Sao_Paulo #Para ajustar o horário
+            MYSQL_ROOT_PASSWORD: admin123
+            MYSQL_USER: docker # Não precisa especificar se for usuário root!!!!
+            MYSQL_PASSWORD: admin123
+            MYSQL_DATABASE: book_service
+            MYSQL_ROOT_HOST: '%' #Permite diferentes hosts
+            MYSQL_TCP_PORT: 3310
+        ports:
+            - "3310:3310" #host:container
+        expose:
+            - 3310
+            
+        volumes:
+            - mysql_ms_book_data:/var/lib/mysql
+            #- mysql_ms_data:/var/lib/mysql
+        
+        # Comando para acessar o mysql do docker
+        # PS C:\Users\Raphael\IdeaProjects\microservices> docker exec -it book-db mysql -u root -padmin123
+        # mysql: [Warning] Using a password on the command line interface can be insecure.
+        # Welcome to the MySQL monitor.  Commands end with ; or \g.
+        # Your MySQL connection id is 16
+        # Server version: 9.3.0 MySQL Community Server - GPL
+        networks:
+          - microservice-network
+          
+    cambio-service: # docker exec -it ideaprojects-cambio-db mysql -u root -padmin123 -e "select * from cambio_service.cambio;"
+        image: raphaelgava1/cambio-service
+        container_name: ms-cambio-service #Para evitar erro do book-server montar o caminho errado (estava gerando o container/hostname com outro nome, e então ele não achava)
+        hostname: ms-cambio-service #Para evitar erro do book-server montar o caminho errado (estava gerando o container com outro nome, e então ele não achava)
+        restart: always #politica de restart do container se der algum problema
+        build:
+            context: .
+            dockerfile: ms_cambio-service/Dockerfile
+        environment: #sobrepõe as configurações do application.yml
+            TZ: America/Sao_Paulo #Para ajustar o horário
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://naming-server:8761/eureka
+            SPRING_ZIPKIN_BASEURL: http://zipkin-server:9411/
+            ZIPKIN_ENDPOINT: http://zipkin-server:9411/api/v2/spans
+            #SPRING_DATASOURCE_DRIVERCLASSNAME: com.mysql.cj.jdbc.Driver
+            SPRING_DATASOURCE_URL: jdbc:mysql://cambio-db:3308/cambio_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
+            SPRING_DATASOURCE_USERNAME: root
+            SPRING_DATASOURCE_PASSWORD: admin123
+            SPRING_FLYWAY_URL: jdbc:mysql://cambio-db:3308/cambio_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
+            SPRING_FLYWAY_USER: root
+            SPRING_FLYWAY_PASSWORD: admin123
+            #HOSTNAME: ms-cambio-service
+            RABBIT_URI: amqp://guest:guest@rabbit-mq:5672
+            SPRING_RABBITMQ_HOST: rabbit-mq
+            SPRING_ZIPKIN_SENDER_TYPE: rabbit #Mudando o zipking.base
+        ports:
+            - "8000:8000" #host:container
+        depends_on:
+            - naming-server
+            - cambio-db
+            - rabbit-mq
+        networks:
+          - microservice-network
+    
+    book-service: # docker exec -it ideaprojects-book-db mysql -u root -padmin123 -e "select * from book_service.book;"
+        image: raphaelgava1/book-service
+        container_name: ms-book-service
+        hostname: ms-book-service
+        restart: always #politica de restart do container se der algum problema
+        build:
+            context: .
+            dockerfile: ms_book-service/Dockerfile
+        environment: #sobrepõe as configurações do application.yml
+            TZ: America/Sao_Paulo #Para ajustar o horário
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://naming-server:8761/eureka
+            SPRING_ZIPKIN_BASEURL: http://zipkin-server:9411/
+            ZIPKIN_ENDPOINT: http://zipkin-server:9411/api/v2/spans
+            #SPRING_DATASOURCE_DRIVERCLASSNAME: com.mysql.cj.jdbc.Driver
+            SPRING_DATASOURCE_URL: jdbc:mysql://book-db:3310/book_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
+            SPRING_DATASOURCE_USERNAME: root
+            SPRING_DATASOURCE_PASSWORD: admin123
+            SPRING_FLYWAY_URL: jdbc:mysql://book-db:3310/book_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
+            SPRING_FLYWAY_USER: root
+            SPRING_FLYWAY_PASSWORD: admin123
+            #HOSTNAME: ms-book-service
+            RABBIT_URI: amqp://guest:guest@rabbit-mq:5672
+            SPRING_RABBITMQ_HOST: rabbit-mq
+            SPRING_ZIPKIN_SENDER_TYPE: rabbit #Mudando o zipking.base
+        ports:
+            - "8100:8100" #host:container
+        depends_on:
+            - naming-server
+            - book-db
+            - rabbit-mq
+        networks:
+          - microservice-network
+          
+volumes:
+    mysql_ms_cambio_data:
+    mysql_ms_book_data:
+    #mysql_ms_data:
+    rabbitmq_data:
+    
+networks:
+    microservice-network:
+        driver: bridge
