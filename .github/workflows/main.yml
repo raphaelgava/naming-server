@@ -1,22 +1,5 @@
 name: Continuous Integration with Github
 
-# on: [push]
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-    
-#     steps:
-#       - uses: actions/checkout@v4
-
-#       - name: Docker Hub Logging
-#         uses: docker/login-action@v3.4.0
-#         with:
-#           # Username used to log against the Docker registry
-#           username: ${{ secrets.DOCKER_USERNAME }}
-#           # Password or personal access token used to log against the Docker registry
-#           # password: 
-
 on:
   push:
 
@@ -29,37 +12,37 @@ jobs:
           with:
               submodules: true # Isso garante que os submódulos sejam automaticamente clonados
       
-        # - name: Login to Docker Hub
-        #   uses: docker/login-action@v3.4.0
-        #   with:
-        #       username: ${{ secrets.DOCKERHUB_USERNAME }}
-        #       password: ${{ secrets.DOCKERHUB_PASSWORD }}  
+        - name: Login to Docker Hub
+          uses: docker/login-action@v3.4.0
+          with:
+              username: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_PASSWORD }}  
 
-        # - name: Setup Java JDK
-        #   uses: actions/setup-java@v3.14.1
-        #   with:
-        #     # The Java version to set up. Takes a whole or semver Java version. See examples of supported syntax in README file
-        #     java-version: '21'
-        #     distribution: 'oracle'
+        - name: Setup Java JDK
+          uses: actions/setup-java@v3.14.1
+          with:
+            # The Java version to set up. Takes a whole or semver Java version. See examples of supported syntax in README file
+            java-version: '21'
+            distribution: 'oracle'
 
-        # - name: Criar arquivo settings.xml # Evidar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
-        #   run: |
-        #     mkdir -p ~/.m2
-        #     cat <<EOF > ~/.m2/settings.xml
-        #     <settings>
-        #         <servers>
-        #             <server>
-        #                 <id>github</id>
-        #                 <username>${{ secrets.GITHUB_ACTOR }}</username>
-        #                 <password>${{ secrets.GITHUB_TOKEN }}</password>
-        #             </server>
-        #         </servers>
-        #     </settings>
-        #     EOF
+        - name: Criar arquivo settings.xml # Evidar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
+          run: |
+            mkdir -p ~/.m2
+            cat <<EOF > ~/.m2/settings.xml
+            <settings>
+                <servers>
+                    <server>
+                        <id>github</id>
+                        <username>${{ secrets.GITHUB_ACTOR }}</username>
+                        <password>${{ secrets.GITHUB_TOKEN }}</password>
+                    </server>
+                </servers>
+            </settings>
+            EOF
 
-        # - name: Eureka Naming Server
-        #   working-directory: ./
-        #   run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+        - name: Eureka Naming Server
+          working-directory: ./
+          run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
 
         - name: Verificar arquivos dentro do diretório esperado
           run: |
@@ -79,9 +62,10 @@ jobs:
           run: |
             if [ -f "./pom.xml" ]; then
               echo "Arquivo pom.xml encontrado. Executando Maven..."
-              # mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+              mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
             else
-              echo "Arquivo pom.xml não encontrado. Pulando etapa."
+              echo "Arquivo pom.xml do api-gateway não encontrado. Parando build."
+              exit 1
             fi
 
             
