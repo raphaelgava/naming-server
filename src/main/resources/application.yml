@@ -3,10 +3,10 @@ spring:
     name: naming-server
 
 server:
-  port: 8761 #8671 È a porta padr„o, foi usado outra apenas pra teste
+  port: 8761 #8671 √© a porta padr√£o, foi usado outra apenas pra teste
 
 eureka:
   client:
-    # para n„o procurar se auto registrar j· que estamos rodando local
+    # para n√£o procurar se auto registrar j√° que estamos rodando local
     register-with-eureka: false
     fetch-registry: false
