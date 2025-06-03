@@ -40,7 +40,7 @@ jobs:
             distribution: 'oracle'
 
         - name: Eureka Naming Server
-          working-directory: ./naming-server
+          working-directory: ./
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
             
 
