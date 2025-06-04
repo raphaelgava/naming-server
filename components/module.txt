@@ -2,9 +2,13 @@ GERANDO OS SUBMODULOS
 git submodule add https://github.com/raphaelgava/api-gateway components/api-gateway
 git submodule add https://github.com/raphaelgava/ms_cambio-service components/ms_cambio-service
 git submodule add https://github.com/raphaelgava/ms_book-service components/ms_book-service
+git add .
 git commit -m "adding components (git submodule add https://github.com/raphaelgava/REPOSITORY components/REPOSITORY)"
 git push
 
 ATUALIZANDO OS SUBMODULOS (CASO FOREM ATUALIZADOS DIRETO NO REPOSITÓRIO PRÓRPIO)
 git submodule update --remote --merge
 git submodule status
+git add .
+git commit -m "updating components (git submodule update --remote --merge)"
+git push
