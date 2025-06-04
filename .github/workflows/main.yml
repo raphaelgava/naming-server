@@ -40,31 +40,31 @@ jobs:
             </settings>
             EOF
 
-        # - name: Eureka Naming Server
-        #   working-directory: ./
-        #   run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+        - name: Eureka Naming Server
+          working-directory: ./
+          run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
 
-        # - name: Verificar estrutura de pastas
-        #   run: |
-        #     echo "Diretório atual:"
-        #     pwd
-        #     echo "Listando arquivos no diretório atual:"
-        #     ls -l      
-        #     echo "Listando arquivos no diretório components:"
-        #     ls -l ./components
-        #     echo "Finding directory"
-        #     find ./ -type d -name "components" -print
+        - name: Verificar estrutura de pastas
+          run: |
+            echo "Diretório atual:"
+            pwd
+            echo "Listando arquivos no diretório atual:"
+            ls -l      
+            echo "Listando arquivos no diretório components:"
+            ls -l ./components
+            echo "Finding directory"
+            find ./ -type d -name "components" -print
 
-        # - name: API Gateway
-        #   working-directory: ./components/api-gateway
-        #   run: |
-        #     if [ -f "./pom.xml" ]; then
-        #       echo "Arquivo pom.xml do api-service encontrado. Executando Maven..."
-        #       mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
-        #     else
-        #       echo "Arquivo pom.xml do api-gateway não encontrado. Parando build."
-        #       exit 1
-        #     fi
+        - name: API Gateway
+          working-directory: ./components/api-gateway
+          run: |
+            if [ -f "./pom.xml" ]; then
+              echo "Arquivo pom.xml do api-service encontrado. Executando Maven..."
+              mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
+            else
+              echo "Arquivo pom.xml do api-gateway não encontrado. Parando build."
+              exit 1
+            fi
 
         - name: MS Cambio
           working-directory: ./components/ms_cambio-service
@@ -77,16 +77,16 @@ jobs:
               exit 1
             fi
 
-        # - name: MS Book
-        #   working-directory: ./components/ms_book-service
-        #   run: |
-        #     if [ -f "./pom.xml" ]; then
-        #       echo "Arquivo pom.xml do ms_book-service encontrado. Executando Maven..."
-        #       mvn clean package -DskipTests -X -e -f pom.xml
-        #     else
-        #       echo "Arquivo pom.xml do ms_book-service não encontrado. Parando build."
-        #       exit 1
-        #     fi
+        - name: MS Book
+          working-directory: ./components/ms_book-service
+          run: |
+            if [ -f "./pom.xml" ]; then
+              echo "Arquivo pom.xml do ms_book-service encontrado. Executando Maven..."
+              mvn clean package -DskipTests -X -e -f pom.xml
+            else
+              echo "Arquivo pom.xml do ms_book-service não encontrado. Parando build."
+              exit 1
+            fi
 
         - name: Docker Compose Build
           working-directory: ./
@@ -96,10 +96,7 @@ jobs:
               echo "Diretório atual:"
               pwd
               echo "Listando arquivos no diretório atual:"
-              ls -l      
-              echo "Listando arquivos no diretório components:"
-              ls -l ./components/ms_cambio-service
-              ls -l ./components/ms_cambio-service/target
+              ls -l
               echo "Finding directory"
               find ./ -type d -name "target" -print
               docker compose build
