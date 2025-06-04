@@ -151,38 +151,38 @@ services:
         networks:
           - microservice-network
     
-#    book-service: # docker exec -it ideaprojects-book-db mysql -u root -padmin123 -e "select * from book_service.book;"
-#        image: raphaelgava1/book-service
-#        container_name: ms-book-service
-#        hostname: ms-book-service
-#        restart: always #politica de restart do container se der algum problema
-#        build:
-#            context: .
-#            dockerfile: components/ms_book-service/Dockerfile
-#        environment: #sobrepõe as configurações do application.yml
-#            TZ: America/Sao_Paulo #Para ajustar o horário
-#            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://naming-server:8761/eureka
-#            SPRING_ZIPKIN_BASEURL: http://zipkin-server:9411/
-#            ZIPKIN_ENDPOINT: http://zipkin-server:9411/api/v2/spans
-#            #SPRING_DATASOURCE_DRIVERCLASSNAME: com.mysql.cj.jdbc.Driver
-#            SPRING_DATASOURCE_URL: jdbc:mysql://book-db:3310/book_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
-#            SPRING_DATASOURCE_USERNAME: root
-#            SPRING_DATASOURCE_PASSWORD: admin123
-#            SPRING_FLYWAY_URL: jdbc:mysql://book-db:3310/book_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
-#            SPRING_FLYWAY_USER: root
-#            SPRING_FLYWAY_PASSWORD: admin123
-#            #HOSTNAME: ms-book-service
-#            RABBIT_URI: amqp://guest:guest@rabbit-mq:5672
-#            SPRING_RABBITMQ_HOST: rabbit-mq
-#            SPRING_ZIPKIN_SENDER_TYPE: rabbit #Mudando o zipking.base
-#        ports:
-#            - "8100:8100" #host:container
-#        depends_on:
-#            - naming-server
-#            - book-db
-#            - rabbit-mq
-#        networks:
-#          - microservice-network
+    book-service: # docker exec -it ideaprojects-book-db mysql -u root -padmin123 -e "select * from book_service.book;"
+        image: raphaelgava1/book-service
+        container_name: ms-book-service
+        hostname: ms-book-service
+        restart: always #politica de restart do container se der algum problema
+        build:
+            context: .
+            dockerfile: components/ms_book-service/Dockerfile
+        environment: #sobrepõe as configurações do application.yml
+            TZ: America/Sao_Paulo #Para ajustar o horário
+            EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://naming-server:8761/eureka
+            SPRING_ZIPKIN_BASEURL: http://zipkin-server:9411/
+            ZIPKIN_ENDPOINT: http://zipkin-server:9411/api/v2/spans
+            #SPRING_DATASOURCE_DRIVERCLASSNAME: com.mysql.cj.jdbc.Driver
+            SPRING_DATASOURCE_URL: jdbc:mysql://book-db:3310/book_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
+            SPRING_DATASOURCE_USERNAME: root
+            SPRING_DATASOURCE_PASSWORD: admin123
+            SPRING_FLYWAY_URL: jdbc:mysql://book-db:3310/book_service?useSSL=false&useTimezone=true&serverTimezone=UTC&enableTLSProtocols=TLSv1.2&allowPublicKeyRetrieval=true
+            SPRING_FLYWAY_USER: root
+            SPRING_FLYWAY_PASSWORD: admin123
+            #HOSTNAME: ms-book-service
+            RABBIT_URI: amqp://guest:guest@rabbit-mq:5672
+            SPRING_RABBITMQ_HOST: rabbit-mq
+            SPRING_ZIPKIN_SENDER_TYPE: rabbit #Mudando o zipking.base
+        ports:
+            - "8100:8100" #host:container
+        depends_on:
+            - naming-server
+            - book-db
+            - rabbit-mq
+        networks:
+          - microservice-network
           
 volumes:
     mysql_ms_cambio_data:
