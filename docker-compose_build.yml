@@ -26,7 +26,7 @@ services:
             - microservice-network
             
     naming-server:
-        image: raphaelgava1/naming-server:latest
+        image: raphaelgava1/naming-server:0.0.1-SNAPSHOT
         container_name: naming-server
         hostname: naming-server
         ports:
@@ -39,7 +39,7 @@ services:
             - microservice-network
             
     api-gateway:
-        image: raphaelgava1/api-gateway:latest
+        image: raphaelgava1/api-gateway:0.0.1-SNAPSHOT
         container_name: api-gateway
         hostname: api-gateway
         ports:
@@ -119,10 +119,13 @@ services:
           - microservice-network
           
     cambio-service: # docker exec -it ideaprojects-cambio-db mysql -u root -padmin123 -e "select * from cambio_service.cambio;"
-        image: raphaelgava1/cambio-service:latest
+        image: raphaelgava1/cambio-service
         container_name: ms-cambio-service #Para evitar erro do book-server montar o caminho errado (estava gerando o container/hostname com outro nome, e então ele não achava)
         hostname: ms-cambio-service #Para evitar erro do book-server montar o caminho errado (estava gerando o container com outro nome, e então ele não achava)
         restart: always #politica de restart do container se der algum problema
+        build:
+            context: .
+            dockerfile: components/ms_cambio-service/Dockerfile
         environment: #sobrepõe as configurações do application.yml
             TZ: America/Sao_Paulo #Para ajustar o horário
             EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://naming-server:8761/eureka
@@ -149,10 +152,13 @@ services:
           - microservice-network
     
     book-service: # docker exec -it ideaprojects-book-db mysql -u root -padmin123 -e "select * from book_service.book;"
-        image: raphaelgava1/book-service:latest
+        image: raphaelgava1/book-service
         container_name: ms-book-service
         hostname: ms-book-service
         restart: always #politica de restart do container se der algum problema
+        build:
+            context: .
+            dockerfile: components/ms_book-service/Dockerfile
         environment: #sobrepõe as configurações do application.yml
             TZ: America/Sao_Paulo #Para ajustar o horário
             EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://naming-server:8761/eureka
