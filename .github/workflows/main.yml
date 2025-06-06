@@ -25,7 +25,7 @@ jobs:
             java-version: '21'
             distribution: 'oracle'
 
-        - name: Criar arquivo settings.xml # Evitar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
+        - name: Creating settings.xml file # Evitar o problema: [DEBUG] Failed to decrypt password for server github: org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException: java.io.FileNotFoundException: /home/runner/.m2/settings-security.xml (No such file or directory)
           run: |
             mkdir -p ~/.m2
             cat <<EOF > ~/.m2/settings.xml
@@ -44,7 +44,7 @@ jobs:
           working-directory: ./
           run: mvn spring-boot:build-image -DskipTests -X -e -f pom.xml
 
-        - name: Verificar estrutura de pastas
+        - name: Check directory structure
           run: |
             echo "Diretório atual:"
             pwd
@@ -105,6 +105,35 @@ jobs:
               exit 1
             fi
 
+        - name: Push Docker Hub Container Registry
+          working-directory: ./
+          env: 
+            DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          run: | # | representa que são vários comandos
+            echo "$DOCKERHUB_USERNAME"
+            docker tag "$DOCKERHUB_USERNAME/naming-server:0.0.1-SNAPSHOT" "$DOCKERHUB_USERNAME/naming-server:${{ github.run_id }}"
+            docker tag "$DOCKERHUB_USERNAME/naming-server:0.0.1-SNAPSHOT" "$DOCKERHUB_USERNAME/naming-server:latest"
+            docker tag "$DOCKERHUB_USERNAME/api-gateway:0.0.1-SNAPSHOT" "$DOCKERHUB_USERNAME/api-gateway:${{ github.run_id }}"
+            docker tag "$DOCKERHUB_USERNAME/api-gateway:0.0.1-SNAPSHOT" "$DOCKERHUB_USERNAME/api-gateway:latest"
+            docker tag "$DOCKERHUB_USERNAME/cambio-service:latest" "$DOCKERHUB_USERNAME/cambio-service:${{ github.run_id }}"
+            docker tag "$DOCKERHUB_USERNAME/book-service:latest" "$DOCKERHUB_USERNAME/book-service:${{ github.run_id }}"
+            docker push "$DOCKERHUB_USERNAME/naming-server:${{ github.run_id }}"
+            echo "naming-server:${{ github.run_id }}"
+            docker push "$DOCKERHUB_USERNAME/naming-server:latest"
+            echo "naming-server:latest"
+            docker push "$DOCKERHUB_USERNAME/api-gateway:${{ github.run_id }}"
+            echo "api-gateway:${{ github.run_id }}"
+            docker push "$DOCKERHUB_USERNAME/api-gateway:latest"
+            echo "api-gateway:latest"
+            docker push "$DOCKERHUB_USERNAME/cambio-service:${{ github.run_id }}"
+            echo "cambio-service:${{ github.run_id }}"
+            docker push "$DOCKERHUB_USERNAME/cambio-service:latest"
+            echo "cambio-service:latest"
+            docker push "$DOCKERHUB_USERNAME/book-service:${{ github.run_id }}"
+            echo "book-service:${{ github.run_id }}"
+            docker push "$DOCKERHUB_USERNAME/book-service:latest"
+            echo "book-service:latest"
+            
             
 
 # This workflow uses actions that are not certified by GitHub.
