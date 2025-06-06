@@ -110,6 +110,7 @@ jobs:
           env: 
             DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           run: | # | representa que são vários comandos
+            echo $DOCKERHUB_USERNAME
             docker tag $DOCKERHUB_USERNAME/naming-server:0.0.1-SNAPSHOT $DOCKERHUB_USERNAME/naming-server:${{ github.run_id }}
             docker tag $DOCKERHUB_USERNAME/api-gateway:0.0.1-SNAPSHOT $DOCKERHUB_USERNAME/api-gateway:${{ github.run_id }}
             docker tag $DOCKERHUB_USERNAME/cambio-service:latest $DOCKERHUB_USERNAME/cambio-service:${{ github.run_id }}
